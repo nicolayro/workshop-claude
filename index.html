@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code Workshop</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css">
+    <style>
+        :root {
+            --cc-orange: #da7756;
+            --cc-cream: #f5f0e8;
+            --cc-dark: #2d2a26;
+            --cc-muted: #5c564e;
+        }
+
+        .reveal {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--cc-cream);
+        }
+
+        .reveal .slides section {
+            color: var(--cc-dark);
+        }
+
+        .reveal h1, .reveal h2, .reveal h3 {
+            text-transform: none;
+            font-weight: 700;
+        }
+
+        .reveal h1 {
+            font-size: 2.8em;
+            color: var(--cc-orange);
+        }
+
+        .reveal h2 {
+            font-size: 1.6em;
+            color: var(--cc-orange);
+        }
+
+        .reveal h3 {
+            font-size: 1.2em;
+            color: var(--cc-muted);
+        }
+
+        .reveal .subtitle {
+            font-size: 1.4em;
+            color: var(--cc-muted);
+            margin-top: 0.5em;
+        }
+
+        .reveal .speakers {
+            font-size: 1.1em;
+            color: var(--cc-orange);
+            font-weight: 600;
+            margin-bottom: 0.6em;
+        }
+
+        .reveal ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .reveal ul li {
+            padding: 0.25em 0;
+            font-size: 0.8em;
+        }
+
+        .reveal ul li::before {
+            content: "▸ ";
+            color: var(--cc-orange);
+            font-weight: bold;
+        }
+
+        .reveal blockquote {
+            background: rgba(218, 119, 86, 0.1);
+            border-left: 4px solid var(--cc-orange);
+            padding: 0.8em 1.2em;
+            font-style: italic;
+            font-size: 0.85em;
+            color: var(--cc-muted);
+            width: 80%;
+            margin: 1em auto;
+        }
+
+        .track-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.7em;
+            margin-top: 0.6em;
+        }
+
+        .track-card {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(218, 119, 86, 0.3);
+            border-radius: 10px;
+            padding: 0.8em;
+            text-align: left;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .track-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--cc-orange);
+        }
+
+        .track-card .track-number {
+            font-size: 0.6em;
+            color: var(--cc-orange);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .track-card .track-title {
+            font-size: 0.95em;
+            font-weight: 700;
+            color: var(--cc-dark);
+            margin: 0.15em 0;
+        }
+
+        .track-card .track-speakers {
+            font-size: 0.6em;
+            color: var(--cc-muted);
+        }
+
+        .track-card .track-level {
+            display: flex;
+            align-items: center;
+            gap: 0.3em;
+            margin-top: 0.35em;
+            font-size: 0.55em;
+            color: var(--cc-muted);
+        }
+
+        .track-card .track-level .dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .track-card .track-level .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--cc-orange);
+            opacity: 0.25;
+        }
+
+        .track-card .track-level .dot.filled {
+            opacity: 1;
+        }
+
+        .terminal {
+            background: #1e1e1e;
+            border-radius: 10px;
+            width: 600px;
+            margin: 0 auto;
+            text-align: left;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        }
+
+        .terminal-bar {
+            background: #333;
+            padding: 8px 12px;
+            display: flex;
+            gap: 6px;
+        }
+
+        .terminal-bar span {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-bar span:nth-child(1) { background: #ff5f57; }
+        .terminal-bar span:nth-child(2) { background: #febc2e; }
+        .terminal-bar span:nth-child(3) { background: #28c840; }
+
+        .terminal-body {
+            padding: 24px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 1.1em;
+            color: #ccc;
+        }
+
+        .terminal-body .prompt {
+            color: #7ec699;
+        }
+
+        .terminal-body .command {
+            color: #fff;
+        }
+
+        .terminal-body .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1.1em;
+            background: #fff;
+            vertical-align: text-bottom;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .title-logo {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 0.4em;
+        }
+
+        .cta {
+            font-size: 1.2em;
+            color: var(--cc-orange);
+            font-weight: 700;
+            margin-top: 0.6em;
+        }
+
+        /* Tagcloud for åpne spor */
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5em;
+            margin-top: 1em;
+        }
+
+        .tag-cloud .tag {
+            background: white;
+            border: 2px solid var(--cc-orange);
+            border-radius: 20px;
+            padding: 0.4em 1em;
+            font-size: 0.75em;
+            color: var(--cc-dark);
+            font-weight: 600;
+        }
+
+        /* Diagrammer */
+        .diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8em;
+            margin: 1.2em auto 0;
+            font-size: 0.75em;
+        }
+
+        .diagram .box {
+            background: white;
+            border: 2px solid var(--cc-orange);
+            border-radius: 10px;
+            padding: 0.6em 1em;
+            font-weight: 600;
+            color: var(--cc-dark);
+        }
+
+        .diagram .box.highlight {
+            background: var(--cc-orange);
+            color: white;
+        }
+
+        .diagram .arrow {
+            color: var(--cc-orange);
+            font-size: 1.4em;
+            font-weight: 700;
+        }
+
+        .diagram .box-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4em;
+        }
+
+        .diagram .box-group .box {
+            font-size: 0.85em;
+            padding: 0.4em 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Tittelside -->
+            <section>
+                <img class="title-logo" src="logo.svg" alt="Claude logo">
+                <h1>Claude Code</h1>
+                <p class="subtitle">Norefjell 2026</p>
+            </section>
+
+            <!-- Terminal-slide -->
+            <section>
+                <div class="terminal">
+                    <div class="terminal-bar">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="terminal-body">
+                        <span class="prompt">~ $</span> <span class="command">claude</span><span class="cursor"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sporoversikt -->
+            <section>
+                <h2>Velg ditt spor</h2>
+                <div class="track-grid">
+                    <div class="track-card">
+                        <div class="track-number">Spor 1</div>
+                        <div class="track-title">Claude 101</div>
+                        <div class="track-speakers">Marius &amp; Nicolay</div>
+                        <div class="track-level"><div class="dots"><span class="dot filled"></span><span class="dot"></span><span class="dot"></span></div> Nybegynner</div>
+                    </div>
+                    <div class="track-card">
+                        <div class="track-number">Spor 2</div>
+                        <div class="track-title">MCP Workshop</div>
+                        <div class="track-speakers">Dag Frode &amp; Stian</div>
+                        <div class="track-level"><div class="dots"><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span></div> Viderekommende</div>
+                    </div>
+                    <div class="track-card">
+                        <div class="track-number">Spor 3</div>
+                        <div class="track-title">Lag din egen skill</div>
+                        <div class="track-speakers">Andreas &amp; Vidar</div>
+                        <div class="track-level"><div class="dots"><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span></div> Viderekommende</div>
+                    </div>
+                    <div class="track-card">
+                        <div class="track-number">Spor 4</div>
+                        <div class="track-title">Agentene Kommer</div>
+                        <div class="track-speakers">Tom Egil</div>
+                        <div class="track-level"><div class="dots"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span></div> Avansert</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Spor 1: Intro -->
+            <section>
+                <h2>Spor 1: Claude 101</h2>
+                <p class="speakers">Marius &amp; Nicolay</p>
+            </section>
+
+            <!-- Spor 1: Innhold -->
+            <section>
+                <h2>Spor 1: Hva skjer?</h2>
+                <ul>
+                    <li>Sett opp Claude Code fra scratch</li>
+                    <li>Lær gode prompting-teknikker</li>
+                    <li>Bruk Claude på egne prosjekter</li>
+                    <li>Bygg en enkel MVP</li>
+                </ul>
+            </section>
+
+            <!-- Spor 2: Intro -->
+            <section>
+                <h2>Spor 2: MCP Workshop</h2>
+                <p class="speakers">Dag Frode &amp; Stian</p>
+            </section>
+
+            <!-- Spor 2: Innhold -->
+            <section>
+                <h2>Spor 2: Hva er MCP?</h2>
+                <div class="diagram">
+                    <div class="box highlight">Claude</div>
+                    <div class="arrow">&harr;</div>
+                    <div class="box">MCP-server</div>
+                    <div class="arrow">&harr;</div>
+                    <div class="box-group">
+                        <div class="box">Database</div>
+                        <div class="box">API-er</div>
+                        <div class="box">Filsystem</div>
+                    </div>
+                </div>
+                <ul>
+                    <li>Et standardisert grensesnitt mellom AI og omverdenen</li>
+                    <li>I denne workshopen bygger du egne MCP-servere</li>
+                </ul>
+            </section>
+
+            <!-- Spor 3: Intro -->
+            <section>
+                <h2>Spor 3: Lag din egen skill</h2>
+                <p class="speakers">Andreas &amp; Vidar</p>
+            </section>
+
+            <!-- Spor 3: Innhold -->
+            <section>
+                <h2>Spor 3: Hva er skills?</h2>
+                <div class="terminal" style="width:500px; margin-bottom: 0.8em;">
+                    <div class="terminal-bar">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="terminal-body" style="padding: 16px; font-size: 0.95em;">
+                        <span class="prompt">~ $</span> <span class="command">/commit</span><br>
+                        <span style="color: #7ec699;">&#10003;</span> <span style="color: #ccc;">Committer endringene dine...</span>
+                    </div>
+                </div>
+                <ul>
+                    <li>Egendefinerte slash-kommandoer for Claude Code</li>
+                    <li>Automatiser arbeidsflyter med én kommando</li>
+                    <li>Del skills på tvers av team og prosjekter</li>
+                </ul>
+            </section>
+
+            <!-- Spor 4: Intro -->
+            <section>
+                <h2>Spor 4: Agentene Kommer</h2>
+                <p class="speakers">Tom Egil</p>
+            </section>
+
+            <!-- Spor 4: Innhold -->
+            <section>
+                <h2>Spor 4: Selvorganisert</h2>
+                <p style="font-size: 0.8em; color: var(--cc-muted);">Velg fritt mellom temaer som:</p>
+                <div class="tag-cloud">
+                    <span class="tag">Autonome agenter</span>
+                    <span class="tag">Oppgaveplanlegging</span>
+                    <span class="tag">Refaktorering med AI</span>
+                    <span class="tag">Fremtiden med KI</span>
+                    <span class="tag">Sosio-tekniske hensyn</span>
+                </div>
+            </section>
+
+            <!-- Avslutning -->
+            <section>
+                <h2>Velg ditt spor!</h2>
+                <div class="track-grid">
+                    <div class="track-card">
+                        <div class="track-number">Spor 1</div>
+                        <div class="track-title">Claude 101</div>
+                        <div class="track-speakers">Marius &amp; Nicolay</div>
+                        <div class="track-level"><div class="dots"><span class="dot filled"></span><span class="dot"></span><span class="dot"></span></div> Nybegynner</div>
+                    </div>
+                    <div class="track-card">
+                        <div class="track-number">Spor 2</div>
+                        <div class="track-title">MCP Workshop</div>
+                        <div class="track-speakers">Dag Frode &amp; Stian</div>
+                        <div class="track-level"><div class="dots"><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span></div> Viderekommende</div>
+                    </div>
+                    <div class="track-card">
+                        <div class="track-number">Spor 3</div>
+                        <div class="track-title">Lag din egen skill</div>
+                        <div class="track-speakers">Andreas &amp; Vidar</div>
+                        <div class="track-level"><div class="dots"><span class="dot filled"></span><span class="dot filled"></span><span class="dot"></span></div> Viderekommende</div>
+                    </div>
+                    <div class="track-card">
+                        <div class="track-number">Spor 4</div>
+                        <div class="track-title">Agentene Kommer</div>
+                        <div class="track-speakers">Tom Egil</div>
+                        <div class="track-level"><div class="dots"><span class="dot filled"></span><span class="dot filled"></span><span class="dot filled"></span></div> Avansert</div>
+                    </div>
+                </div>
+                <p class="cta">Lykke til! 🚀</p>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            transition: 'slide',
+            transitionSpeed: 'default',
+            controls: true,
+            progress: true,
+            center: true
+        });
+    </script>
+</body>
+</html>
